@@ -58,7 +58,26 @@ const UploadPhoto: React.FC = () => {
       return;
     }
 
-    const publicUrl = supabase.storage.from("uploads").getPublicUrl(fileName).data.publicUrl; // ✅ Lấy URL đúng cách
+   const { data: uploadedFile, error } = await supabase.storage.from("uploads").upload(fileName, file);
+if (error) {
+  console.error("❌ Lỗi khi tải ảnh lên:", error);
+  alert("Lỗi upload ảnh!");
+  setIsUploading(false);
+  return;
+}
+
+// 🔥 Lấy URL đúng cách
+const { data: publicUrlData, error: urlError } = supabase.storage.from("uploads").getPublicUrl(fileName);
+if (urlError || !publicUrlData?.publicUrl) {
+  console.error("❌ Không lấy được URL ảnh:", urlError);
+  alert("Lỗi: Không lấy được URL ảnh!");
+  setIsUploading(false);
+  return;
+}
+
+const publicUrl = publicUrlData.publicUrl;
+console.log("🔵 URL ảnh:", publicUrl);
+
 
     addPhoto({
       url: publicUrl,
