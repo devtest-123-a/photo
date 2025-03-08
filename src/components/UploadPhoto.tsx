@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef } from 'react'; // ✅ Thêm useRef
 import { supabase } from "../supabaseClient";
 import { Upload, X } from 'lucide-react';
 import { usePhotoContext } from '../context/PhotoContext';
@@ -9,10 +9,10 @@ const UploadPhoto: React.FC = () => {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [description, setDescription] = useState('');
   const [year, setYear] = useState<number>(new Date().getFullYear());
-  const [isSpecial, setIsSpecial] = useState(false); // ✅ Giữ nguyên checkbox "Kỷ niệm đặc biệt"
+  const [isSpecial, setIsSpecial] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const { toast } = useToast();
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null); // ✅ Tạo ref
 
   const { addPhoto } = usePhotoContext();
 
@@ -48,47 +48,34 @@ const UploadPhoto: React.FC = () => {
     }
 
     const file = fileInputRef.current.files[0];
-    const fileName = `${Date.now()}_${file.name}`;
+    const fileName = ${Date.now()}_${file.name};
 
-    console.log("🟡 Bắt đầu upload ảnh:", fileName);
-
-    try {
-      const { data, error } = await supabase.storage.from("uploads").upload(fileName, file);
-      if (error) throw error;
-
-      console.log("✅ Upload thành công:", data);
-
-      // Lấy URL đúng cách
-      const { data: urlData } = supabase.storage.from("uploads").getPublicUrl(fileName);
-      const publicUrl = urlData.publicUrl;
-
-      if (!publicUrl) {
-        throw new Error("Không lấy được URL ảnh!");
-      }
-
-      console.log("🔵 URL ảnh:", publicUrl);
-
-      addPhoto({
-        url: publicUrl,
-        description,
-        year,
-        isSpecial, // ✅ Lưu trạng thái "Kỷ niệm đặc biệt"
-        date: new Date(),
-      });
-
-      toast({
-        title: "Thành công!",
-        description: "Kỷ niệm đã được lưu trữ.",
-      });
-
-      resetForm();
-      setIsOpen(false);
-    } catch (err) {
-      console.error("❌ Lỗi khi lưu ảnh:", err);
-      alert(`Lỗi: ${err.message}`);
-    } finally {
+    const { data, error } = await supabase.storage.from("uploads").upload(fileName, file);
+    if (error) {
+      console.error("Lỗi khi tải lên:", error);
+      alert("Upload thất bại!");
       setIsUploading(false);
+      return;
     }
+
+    const publicUrl = supabase.storage.from("uploads").getPublicUrl(fileName).data.publicUrl; // ✅ Lấy URL đúng cách
+
+    addPhoto({
+      url: publicUrl,
+      description,
+      year,
+      isSpecial,
+      date: new Date(),
+    });
+
+    toast({
+      title: "Thành công!",
+      description: "Kỷ niệm đã được lưu trữ.",
+    });
+
+    resetForm();
+    setIsOpen(false);
+    setIsUploading(false);
   };
 
   return (
@@ -126,7 +113,7 @@ const UploadPhoto: React.FC = () => {
                     <p className="text-xs text-romantic-400">Hỗ trợ định dạng JPG, PNG</p>
                     <input
                       type="file"
-                      ref={fileInputRef}
+                      ref={fileInputRef} // ✅ Gán ref
                       className="hidden"
                       accept="image/*"
                       onChange={handleFileChange}
@@ -162,21 +149,7 @@ const UploadPhoto: React.FC = () => {
                     required
                   />
                 </div>
-
-                {/* ✅ Checkbox "Kỷ niệm đặc biệt" */}
-                <div className="flex items-center">
-                  <input
-                    type="checkbox"
-                    id="specialMemory"
-                    className="w-4 h-4 text-romantic-500 border-romantic-300 rounded focus:ring-romantic-400"
-                    checked={isSpecial}
-                    onChange={(e) => setIsSpecial(e.target.checked)}
-                  />
-                  <label htmlFor="specialMemory" className="ml-2 text-romantic-600">
-                    Là kỷ niệm đặc biệt 💖
-                  </label>
-                </div>
-
+                
                 <div className="flex justify-end gap-3 mt-6">
                   <button
                     type="button"
