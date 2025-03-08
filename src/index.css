@@ -1,0 +1,107 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Montserrat:wght@300;400;500;600;700&display=swap');
+
+@layer base {
+  :root {
+    --background: 330 100% 98%;
+    --foreground: 330 10% 15%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 330 10% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 330 10% 15%;
+
+    --primary: 330 80% 60%;
+    --primary-foreground: 330 10% 98%;
+
+    --secondary: 330 30% 96%;
+    --secondary-foreground: 330 10% 15%;
+
+    --muted: 330 30% 96%;
+    --muted-foreground: 330 10% 40%;
+
+    --accent: 330 80% 96%;
+    --accent-foreground: 330 10% 15%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 330 30% 90%;
+    --input: 330 30% 90%;
+    --ring: 330 80% 60%;
+
+    --radius: 0.75rem;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans overflow-x-hidden;
+    font-family: 'Montserrat', sans-serif;
+  }
+
+  .font-dancing {
+    font-family: 'Dancing Script', cursive;
+  }
+}
+
+@layer components {
+  .glass-card {
+    @apply bg-white/70 backdrop-blur-lg rounded-2xl border border-white/20 shadow-md;
+  }
+  
+  .photo-card {
+    @apply glass-card overflow-hidden transition duration-300 hover:shadow-xl hover:-translate-y-1;
+  }
+  
+  .btn-primary {
+    @apply px-6 py-3 bg-romantic-400 hover:bg-romantic-500 text-white rounded-full transition duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5;
+  }
+  
+  .btn-secondary {
+    @apply px-4 py-2 bg-white/80 hover:bg-white text-romantic-600 rounded-full transition duration-200 shadow-sm hover:shadow border border-romantic-200;
+  }
+  
+  .btn-icon {
+    @apply p-2 rounded-full bg-white/80 hover:bg-white text-romantic-600 transition duration-200 shadow-sm hover:shadow;
+  }
+  
+  .year-chip {
+    @apply inline-block px-4 py-1 rounded-full text-sm font-medium bg-romantic-100 text-romantic-600 transition-all duration-200 hover:bg-romantic-200 cursor-pointer;
+  }
+  
+  .year-chip.active {
+    @apply bg-romantic-500 text-white;
+  }
+  
+  .glass-blur {
+    @apply bg-white/40 backdrop-blur-md border border-white/20 shadow-sm;
+  }
+}
+
+.heart-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: -1;
+  overflow: hidden;
+}
