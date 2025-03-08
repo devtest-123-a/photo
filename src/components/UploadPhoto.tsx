@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+ import { supabase } from "../supabaseClient"; // Đảm bảo đã import Supabase
 import { Upload, X } from 'lucide-react';
 import { usePhotoContext } from '../context/PhotoContext';
 import { useToast } from "@/hooks/use-toast";
@@ -34,7 +35,7 @@ const UploadPhoto: React.FC = () => {
     setIsUploading(false);
   };
 
-  import { supabase } from "../supabaseClient"; // Đảm bảo đã import Supabase
+
 
 const handleSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
