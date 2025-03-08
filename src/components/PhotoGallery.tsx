@@ -36,7 +36,8 @@ useEffect(() => {
 
   const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
 
-  const years = selectedYear ? [selectedYear] : getYears();
+  const years = selectedYear ? [selectedYear] : [];
+
 
   const handlePhotoClick = (photo: Photo) => {
     setSelectedPhoto(photo);
