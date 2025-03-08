@@ -4,6 +4,9 @@ import { Upload, X } from 'lucide-react';
 import { usePhotoContext } from '../context/PhotoContext';
 import { useToast } from "@/hooks/use-toast";
 
+const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
+
 const UploadPhoto: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -16,16 +19,18 @@ const UploadPhoto: React.FC = () => {
 
   const { addPhoto } = usePhotoContext();
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
+ const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const file = e.target.files?.[0];
+  if (file) {
+    setSelectedFile(file); // ✅ Lưu file vào state
+    const reader = new FileReader();
+    reader.onload = () => {
+      setImagePreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  }
+};
+
 
   const resetForm = () => {
     setImagePreview(null);
@@ -41,13 +46,14 @@ const UploadPhoto: React.FC = () => {
 
     setIsUploading(true);
 
-    if (!fileInputRef.current?.files?.length) {
-      alert("Chưa chọn ảnh!");
-      setIsUploading(false);
-      return;
-    }
+    if (!selectedFile) { // ✅ Kiểm tra state thay vì fileInputRef
+  alert("Chưa chọn ảnh!");
+  setIsUploading(false);
+  return;
+}
+const file = selectedFile; // ✅ Lấy file từ state
+const fileName = `${Date.now()}_${file.name}`;
 
-    const file = fileInputRef.current.files[0];
     const fileName = ${Date.now()}_${file.name};
 
     const { data, error } = await supabase.storage.from("uploads").upload(fileName, file);
@@ -131,12 +137,12 @@ console.log("🔵 URL ảnh:", publicUrl);
                     <p className="text-romantic-500 mb-2">Nhấn để tải ảnh lên</p>
                     <p className="text-xs text-romantic-400">Hỗ trợ định dạng JPG, PNG</p>
                     <input
-                      type="file"
-                      ref={fileInputRef} // ✅ Gán ref
-                      className="hidden"
-                      accept="image/*"
-                      onChange={handleFileChange}
-                    />
+  type="file"
+  ref={fileInputRef} // ✅ Vẫn giữ ref để click
+  className="hidden"
+  accept="image/*"
+  onChange={handleFileChange} // ✅ Quan trọng: Lấy file từ đây
+/>
                   </div>
                 ) : (
                   <div className="relative rounded-xl overflow-hidden h-48">
