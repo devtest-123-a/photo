@@ -84,5 +84,5 @@ if (photos.length === 0) {
 
   <PhotoModal photo={selectedPhoto} onClose={closeModal} />
 </div>
-
+);
 export default PhotoGallery;
