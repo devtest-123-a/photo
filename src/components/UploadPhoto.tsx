@@ -1,11 +1,8 @@
-import React, { useState, useRef } from 'react'; // ✅ Thêm useRef
+import React, { useState, useRef } from 'react';
 import { supabase } from "../supabaseClient";
 import { Upload, X } from 'lucide-react';
 import { usePhotoContext } from '../context/PhotoContext';
 import { useToast } from "@/hooks/use-toast";
-
-const [selectedFile, setSelectedFile] = useState<File | null>(null);
-
 
 const UploadPhoto: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -14,23 +11,22 @@ const UploadPhoto: React.FC = () => {
   const [year, setYear] = useState<number>(new Date().getFullYear());
   const [isSpecial, setIsSpecial] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null); // ✅ Thêm state lưu file
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
-  const fileInputRef = useRef<HTMLInputElement>(null); // ✅ Tạo ref
-
   const { addPhoto } = usePhotoContext();
 
- const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  const file = e.target.files?.[0];
-  if (file) {
-    setSelectedFile(file); // ✅ Lưu file vào state
-    const reader = new FileReader();
-    reader.onload = () => {
-      setImagePreview(reader.result as string);
-    };
-    reader.readAsDataURL(file);
-  }
-};
-
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedFile(file); // ✅ Lưu file vào state
+      const reader = new FileReader();
+      reader.onload = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const resetForm = () => {
     setImagePreview(null);
@@ -38,23 +34,22 @@ const UploadPhoto: React.FC = () => {
     setYear(new Date().getFullYear());
     setIsSpecial(false);
     setIsUploading(false);
+    setSelectedFile(null); // ✅ Reset file
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!imagePreview) return;
+
+    if (!selectedFile) { // ✅ Kiểm tra state thay vì fileInputRef
+      alert("Chưa chọn ảnh!");
+      setIsUploading(false);
+      return;
+    }
 
     setIsUploading(true);
 
-    if (!selectedFile) { // ✅ Kiểm tra state thay vì fileInputRef
-  alert("Chưa chọn ảnh!");
-  setIsUploading(false);
-  return;
-}
-const file = selectedFile; // ✅ Lấy file từ state
-const fileName = `${Date.now()}_${file.name}`;
-
-    const fileName = ${Date.now()}_${file.name};
+    const file = selectedFile; // ✅ Lấy file từ state
+    const fileName = `${Date.now()}_${file.name}`;
 
     const { data, error } = await supabase.storage.from("uploads").upload(fileName, file);
     if (error) {
@@ -64,26 +59,7 @@ const fileName = `${Date.now()}_${file.name}`;
       return;
     }
 
-   const { data: uploadedFile, error } = await supabase.storage.from("uploads").upload(fileName, file);
-if (error) {
-  console.error("❌ Lỗi khi tải ảnh lên:", error);
-  alert("Lỗi upload ảnh!");
-  setIsUploading(false);
-  return;
-}
-
-// 🔥 Lấy URL đúng cách
-const { data: publicUrlData, error: urlError } = supabase.storage.from("uploads").getPublicUrl(fileName);
-if (urlError || !publicUrlData?.publicUrl) {
-  console.error("❌ Không lấy được URL ảnh:", urlError);
-  alert("Lỗi: Không lấy được URL ảnh!");
-  setIsUploading(false);
-  return;
-}
-
-const publicUrl = publicUrlData.publicUrl;
-console.log("🔵 URL ảnh:", publicUrl);
-
+    const publicUrl = supabase.storage.from("uploads").getPublicUrl(fileName).data.publicUrl;
 
     addPhoto({
       url: publicUrl,
@@ -100,13 +76,12 @@ console.log("🔵 URL ảnh:", publicUrl);
 
     resetForm();
     setIsOpen(false);
-    setIsUploading(false);
   };
 
   return (
     <>
       <button 
-        className="px-6 py-3 btn-primary flex items-center shadow-lg animate-pulse-gentle z-[1000] relative"
+        className="px-6 py-3 btn-primary flex items-center shadow-lg"
         onClick={() => setIsOpen(true)}
       >
         <Upload size={20} className="mr-2" />
@@ -114,81 +89,79 @@ console.log("🔵 URL ảnh:", publicUrl);
       </button>
 
       {isOpen && (
-        <div className="fixed inset-0 z-[999999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fade-in">
-          <div className="absolute inset-0" onClick={() => setIsOpen(false)}></div>
-          
-          <div className="relative glass-card w-full max-w-2xl p-6 z-[1000000] animate-scale-in my-8 max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 flex items-center justify-center p-4 bg-black/60">
+          <div className="relative w-full max-w-2xl p-6 bg-white rounded-lg shadow-lg">
             <button
-              className="absolute top-3 right-3 btn-icon"
+              className="absolute top-3 right-3"
               onClick={() => setIsOpen(false)}
             >
               <X size={20} />
             </button>
-            
-            <h2 className="text-2xl font-dancing text-romantic-600 mb-6 text-center">
+
+            <h2 className="text-2xl font-bold text-center mb-6">
               Thêm kỷ niệm mới
             </h2>
-            
+
             <form onSubmit={handleSubmit}>
               <div className="space-y-4">
                 {!imagePreview ? (
-                  <div className="border-2 border-dashed border-romantic-200 rounded-xl p-8 text-center cursor-pointer hover:border-romantic-400 transition-colors duration-200" onClick={() => fileInputRef.current?.click()}>
-                    <Upload size={40} className="mx-auto mb-4 text-romantic-400" />
-                    <p className="text-romantic-500 mb-2">Nhấn để tải ảnh lên</p>
-                    <p className="text-xs text-romantic-400">Hỗ trợ định dạng JPG, PNG</p>
+                  <div className="border-2 border-dashed p-8 text-center cursor-pointer" 
+                       onClick={() => fileInputRef.current?.click()}>
+                    <Upload size={40} className="mx-auto mb-4" />
+                    <p className="mb-2">Nhấn để tải ảnh lên</p>
+                    <p className="text-xs">Hỗ trợ định dạng JPG, PNG</p>
                     <input
-  type="file"
-  ref={fileInputRef} // ✅ Vẫn giữ ref để click
-  className="hidden"
-  accept="image/*"
-  onChange={handleFileChange} // ✅ Quan trọng: Lấy file từ đây
-/>
+                      type="file"
+                      ref={fileInputRef}
+                      className="hidden"
+                      accept="image/*"
+                      onChange={handleFileChange} // ✅ Đảm bảo chọn ảnh hoạt động
+                    />
                   </div>
                 ) : (
                   <div className="relative rounded-xl overflow-hidden h-48">
-                    <img
-                      src={imagePreview}
-                      alt="Preview"
-                      className="w-full h-full object-cover"
-                    />
+                    <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
                     <button
                       type="button"
-                      className="absolute top-2 right-2 btn-icon"
-                      onClick={() => setImagePreview(null)}
+                      className="absolute top-2 right-2"
+                      onClick={() => {
+                        setImagePreview(null);
+                        setSelectedFile(null); // ✅ Xóa file khi ấn x
+                      }}
                     >
                       <X size={16} />
                     </button>
                   </div>
                 )}
-                
+
                 <div>
-                  <label className="block text-sm font-medium text-romantic-700 mb-1">
-                    Mô tả kỷ niệm
-                  </label>
+                  <label className="block text-sm font-medium mb-1">Mô tả kỷ niệm</label>
                   <textarea
-                    className="w-full p-3 rounded-lg border border-romantic-200 focus:ring-2 focus:ring-romantic-300 focus:border-romantic-300 outline-none transition-all duration-200"
+                    className="w-full p-3 border rounded-lg"
                     rows={3}
-                    placeholder="Hãy mô tả về kỷ niệm đẹp này..."
+                    placeholder="Mô tả kỷ niệm..."
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     required
                   />
                 </div>
-                
+
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="special"
+                    className="mr-2"
+                    checked={isSpecial}
+                    onChange={(e) => setIsSpecial(e.target.checked)}
+                  />
+                  <label htmlFor="special">Đánh dấu là kỷ niệm đặc biệt</label>
+                </div>
+
                 <div className="flex justify-end gap-3 mt-6">
-                  <button
-                    type="button"
-                    className="btn-secondary"
-                    onClick={() => setIsOpen(false)}
-                    disabled={isUploading}
-                  >
+                  <button type="button" className="btn-secondary" onClick={() => setIsOpen(false)} disabled={isUploading}>
                     Hủy
                   </button>
-                  <button
-                    type="submit"
-                    className="btn-primary"
-                    disabled={!imagePreview || !description || isUploading}
-                  >
+                  <button type="submit" className="btn-primary" disabled={!selectedFile || !description || isUploading}>
                     {isUploading ? 'Đang lưu...' : 'Lưu kỷ niệm'}
                   </button>
                 </div>
