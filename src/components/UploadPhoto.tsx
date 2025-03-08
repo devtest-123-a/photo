@@ -9,7 +9,7 @@ const UploadPhoto: React.FC = () => {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [description, setDescription] = useState('');
   const [year, setYear] = useState<number>(new Date().getFullYear());
-  const [isSpecial, setIsSpecial] = useState(false);
+  const [isSpecial, setIsSpecial] = useState(false); // ✅ Giữ nguyên checkbox "Kỷ niệm đặc biệt"
   const [isUploading, setIsUploading] = useState(false);
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -72,7 +72,7 @@ const UploadPhoto: React.FC = () => {
         url: publicUrl,
         description,
         year,
-        isSpecial,
+        isSpecial, // ✅ Lưu trạng thái "Kỷ niệm đặc biệt"
         date: new Date(),
       });
 
@@ -162,7 +162,21 @@ const UploadPhoto: React.FC = () => {
                     required
                   />
                 </div>
-                
+
+                {/* ✅ Checkbox "Kỷ niệm đặc biệt" */}
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="specialMemory"
+                    className="w-4 h-4 text-romantic-500 border-romantic-300 rounded focus:ring-romantic-400"
+                    checked={isSpecial}
+                    onChange={(e) => setIsSpecial(e.target.checked)}
+                  />
+                  <label htmlFor="specialMemory" className="ml-2 text-romantic-600">
+                    Là kỷ niệm đặc biệt 💖
+                  </label>
+                </div>
+
                 <div className="flex justify-end gap-3 mt-6">
                   <button
                     type="button"
