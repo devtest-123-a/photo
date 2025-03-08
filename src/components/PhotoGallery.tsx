@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+
 import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";  // Import kết nối Supabase
 
@@ -85,4 +85,5 @@ if (photos.length === 0) {
   <PhotoModal photo={selectedPhoto} onClose={closeModal} />
 </div>
 );
+};
 export default PhotoGallery;
