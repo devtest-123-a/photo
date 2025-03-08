@@ -11,15 +11,17 @@ const UploadPhoto: React.FC = () => {
   const [year, setYear] = useState<number>(new Date().getFullYear());
   const [isSpecial, setIsSpecial] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null); // ✅ Thêm state lưu file
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const { addPhoto } = usePhotoContext();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+    console.log("File chọn:", file); // 🛠 Kiểm tra file có lấy được không
+
     if (file) {
-      setSelectedFile(file); // ✅ Lưu file vào state
+      setSelectedFile(file);
       const reader = new FileReader();
       reader.onload = () => {
         setImagePreview(reader.result as string);
@@ -34,13 +36,14 @@ const UploadPhoto: React.FC = () => {
     setYear(new Date().getFullYear());
     setIsSpecial(false);
     setIsUploading(false);
-    setSelectedFile(null); // ✅ Reset file
+    setSelectedFile(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!selectedFile) { // ✅ Kiểm tra state thay vì fileInputRef
+    console.log("File trước khi upload:", selectedFile); // 🛠 Kiểm tra file có tồn tại không
+    if (!selectedFile) {
       alert("Chưa chọn ảnh!");
       setIsUploading(false);
       return;
@@ -48,7 +51,7 @@ const UploadPhoto: React.FC = () => {
 
     setIsUploading(true);
 
-    const file = selectedFile; // ✅ Lấy file từ state
+    const file = selectedFile;
     const fileName = `${Date.now()}_${file.name}`;
 
     const { data, error } = await supabase.storage.from("uploads").upload(fileName, file);
@@ -115,7 +118,7 @@ const UploadPhoto: React.FC = () => {
                       ref={fileInputRef}
                       className="hidden"
                       accept="image/*"
-                      onChange={handleFileChange} // ✅ Đảm bảo chọn ảnh hoạt động
+                      onChange={handleFileChange}
                     />
                   </div>
                 ) : (
@@ -126,7 +129,7 @@ const UploadPhoto: React.FC = () => {
                       className="absolute top-2 right-2"
                       onClick={() => {
                         setImagePreview(null);
-                        setSelectedFile(null); // ✅ Xóa file khi ấn x
+                        setSelectedFile(null);
                       }}
                     >
                       <X size={16} />
